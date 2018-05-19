@@ -1,0 +1,115 @@
+---
+title: "ECS 132 - Project"
+author: Teresa Li, sqtli@ucdavis.edu \break Wenjing Fu, luffu@ucdavis.edu
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: 3
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+\pagebreak[4]
+
+# Design
+
+## Question 1
+```{r Q1, cache=TRUE}
+load("Traffic_data_orig.RData")
+message <- "this is a secret message"
+raw <- charToRaw(message)
+time = Traffic_data_orig$Time
+num = as.integer(rawToBits(raw))
+
+index = 1
+bitlen = length(raw)*8
+encrpt <- numeric(length(raw)*8)
+for (i in (0:(length(raw)-1))) {
+  j = 8
+  while (j > 0) {
+    if (num[i*8+j] == 0) {
+      encrpt[index] = 0.25
+    }
+    else {
+      encrpt[index] = 0.75
+    }
+    index = index+1
+    j = j-1
+  }
+}
+
+time2 <- Traffic_data_orig$Time
+for (i in (1:bitlen)) {
+  time2[i+1] = time2[i] + encrpt[i]
+}
+```
+
+
+## Question 2
+```{r Q2, cache=TRUE, dependson='Q1'}
+hist(time, col='grey', xlab = 'Time', 
+     main = 'Histogram of Overt Packet Stream')
+hist(time2, col='grey', xlab = 'Time', 
+     main = 'Histogram of Convert Packet Stream')
+```
+Yes, Eve will be suspicious because it is obvious that the distribution changed.
+
+## Question 3
+
+```{r Q3, cache=TRUE}
+load("Traffic_data_orig.RData")
+message <- "this is a secret message"
+raw <- charToRaw(message)
+time = Traffic_data_orig$Time
+num = as.integer(rawToBits(raw))
+delays = numeric(length(time) - 1)
+for (i in (1:(length(time) - 1))) {
+  delays[i] = time[i+1] - time[i]
+}
+m = median(delays)
+max = max(delays)
+min = min(delays)
+
+index = 1
+bitlen = length(raw)*8
+encrpt <- numeric(length(raw)*8)
+for (i in (0:(length(raw)-1))) {
+  j = 8
+  while (j > 0) {
+    if (num[i*8+j] == 0) {
+      encrpt[index] = runif(1, min, m)
+    }
+    else {
+      encrpt[index] = runif(1, m, max)
+    }
+    index = index+1
+    j = j-1
+  }
+}
+
+time2 <- Traffic_data_orig$Time
+for (i in (1:bitlen)) {
+  time2[i+1] = time2[i] + encrpt[i]
+}
+```
+
+## Question 4
+```{r Q4, cache=TRUE, dependson='Q3'}
+hist(time, col='grey', xlab = 'Time', 
+     main = 'Histogram of Overt Packet Stream')
+hist(time2, col='grey', xlab = 'Time', 
+     main = 'Histogram of Convert Packet Stream')
+```
+I think Eva will be suspicious because it is obvious the distribution changed.
+
+## Question 5
+
+
+
+
+
+
+
+
