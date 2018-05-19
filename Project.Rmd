@@ -92,9 +92,9 @@ for (i in (0:(length(raw)-1))) {
   }
 }
 
-delays2 = delays
+delays3 = delays
 for (i in (1:bitlen)) {
-  delays2[i] = encrpt[i]
+  delays3[i] = encrpt[i]
 }
 ```
 
@@ -110,17 +110,86 @@ I think Eva will not be suspicious.
 ## Question 5
 
 1. Instead of generating random number from m to max, and min to m, we can choose one of the existing one from m to max, and min to m.
+
 2. 
+
 3. 
 
 # Detection
 
-## Steps 1
+## Step 1
 
 ```{r S1}
-
+data1 <- rnorm(30)
+data2 <- rnorm(30)
+qqplot(data1, data2)
 ```
 
+## Step 2
 
+```{r S2}
+data1 <- rnorm(100)
+data2 <- rnorm(100)
+qqplot(data1, data2)
+data1 <- rnorm(1000)
+data2 <- rnorm(1000)
+qqplot(data1, data2)
+```
+
+Two plots are directly proportional to each other.
+
+## Step 3
+
+```{r S3}
+data1 <- rnorm(100)
+data2 <- rnorm(100, mean = 5, sd = 3)
+qqplot(data1, data2)
+```
+
+data2 is directly proportional to data1, but the slope is different this time.
+
+## Step 4
+
+```{r S4}
+data1 <- rexp(100)
+data2 <- rexp(100)
+qqplot(data1, data2)
+data1 <- rexp(1000)
+data2 <- rexp(1000)
+qqplot(data1, data2)
+```
+
+With a bigger size, two data sets are more consistent.
+
+## Step 5
+
+```{r S5}
+data1 <- rnorm(100)
+data2 <- rexp(100)
+qqplot(data1, data2)
+data1 <- rnorm(500)
+data2 <- rexp(500)
+qqplot(data1, data2)
+```
+
+Their relation is exponential.
+
+## Step 6
+
+```{r S6, dependson='Q1'}
+qqplot(delays, delays2)
+```
+
+## Step 7
+
+```{r S7, dependson='Q3'}
+qqplot(delays, delays3)
+```
+
+## Step 8
+
+```{r S8}
+
+```
 
 
