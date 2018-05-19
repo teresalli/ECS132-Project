@@ -123,6 +123,7 @@ I think Eva will not be suspicious.
 data1 <- rnorm(30)
 data2 <- rnorm(30)
 qqplot(data1, data2)
+lines(data1, data1, type = 'l')
 ```
 
 ## Step 2
@@ -131,9 +132,11 @@ qqplot(data1, data2)
 data1 <- rnorm(100)
 data2 <- rnorm(100)
 qqplot(data1, data2)
+lines(data1, data1, type = 'l')
 data1 <- rnorm(1000)
 data2 <- rnorm(1000)
 qqplot(data1, data2)
+lines(data1, data1, type = 'l')
 ```
 
 Two plots are directly proportional to each other.
@@ -144,6 +147,7 @@ Two plots are directly proportional to each other.
 data1 <- rnorm(100)
 data2 <- rnorm(100, mean = 5, sd = 3)
 qqplot(data1, data2)
+lines(data1, data1, type = 'l')
 ```
 
 data2 is directly proportional to data1, but the slope is different this time.
@@ -154,9 +158,11 @@ data2 is directly proportional to data1, but the slope is different this time.
 data1 <- rexp(100)
 data2 <- rexp(100)
 qqplot(data1, data2)
+lines(data1, data1, type = 'l')
 data1 <- rexp(1000)
 data2 <- rexp(1000)
 qqplot(data1, data2)
+lines(data1, data1, type = 'l')
 ```
 
 With a bigger size, two data sets are more consistent.
@@ -167,9 +173,11 @@ With a bigger size, two data sets are more consistent.
 data1 <- rnorm(100)
 data2 <- rexp(100)
 qqplot(data1, data2)
+lines(data1, data1, type = 'l')
 data1 <- rnorm(500)
 data2 <- rexp(500)
 qqplot(data1, data2)
+lines(data1, data1, type = 'l')
 ```
 
 Their relation is exponential.
@@ -178,12 +186,14 @@ Their relation is exponential.
 
 ```{r S6, dependson='Q1'}
 qqplot(delays, delays2)
+lines(delays, delays, type = 'l')
 ```
 
 ## Step 7
 
 ```{r S7, dependson='Q3'}
 qqplot(delays, delays3)
+lines(delays, delays, type = 'l')
 ```
 
 ## Step 8
@@ -223,6 +233,60 @@ for (i in (1:bitlen)) {
   delays4[i] = encrpt[i]
 }
 qqplot(delays, delays4)
+lines(delays, delays, type = 'l')
 ```
 
+# Implementation
 
+## Implementation 1
+
+```{r I1}
+generateMessage <- function (len) {
+  message <- numeric(len)
+  for (i in (1:len)){
+    message[i] = sample(c(0,1), 1)
+  }
+  return(message)
+}
+
+generateTime <- function(ipd, len) {
+  time <- numeric(len)
+  time[1] = 0
+  for (i in (2:len)){
+    time[i] = time[i-1] + ipd[i-1]
+  }
+  return(time)
+}
+
+#generateProb <- function () {
+  bufferSize = 20
+  ipd <- rexp(50)
+  ipd2 <- rexp(50)
+  ipdTime <- generateTime(ipd, 51)
+  min = min(ipd)
+  max = max(ipd)
+  med = median(ipd)
+  m <- c(16,32)
+  bufferNum <- c(2,6,10,14,18)
+  count = 0
+  underflow = 0
+  overflow = 0
+  for (index in (1:2)) {
+    len = m[index]
+    message <- generateMessage(len) # generate a message
+  
+    for (j in (1:5)) {
+      mi = 1
+      i = bufferNum[j]
+      bufferSize = bufferSize - i
+      tempTime = ipdTime[i] # buffer i packets
+      # modify and send it
+      
+      
+      count = count + 1
+    }
+  }
+  #return(c(underflow/count,overflow/count))
+#}
+#generateProb()
+```
