@@ -126,6 +126,7 @@ I think Eva will not be suspicious because the trend of the Convert Packet Strea
 data1 <- rnorm(30)
 data2 <- rnorm(30)
 qqplot(data1, data2)
+lines(data1, data1, type = 'l')
 ```
 
 ## Step 2
@@ -134,9 +135,11 @@ qqplot(data1, data2)
 data1 <- rnorm(100)
 data2 <- rnorm(100)
 qqplot(data1, data2)
+lines(data1, data1, type = 'l')
 data1 <- rnorm(1000)
 data2 <- rnorm(1000)
 qqplot(data1, data2)
+lines(data1, data1, type = 'l')
 ```
 
 When size n = 30, the plot has few points. The scattering points seems to be placed in a pattern that the slop is positive, and a trend is observed. When size n = 100, more points are added comparing to n = 30. Points are forming into a line, still has the same trend as size n = 30. When size n = 1000, with 1000 points that connected together, a relatively straight line is observed. The plot clearly shows both trend and slop. Comparing three data plots, it is obvious that the more points one graph has, the more clear how the slop is like. All plots share the same slop and plots are directly proportional to each other.
@@ -147,6 +150,7 @@ When size n = 30, the plot has few points. The scattering points seems to be pla
 data1 <- rnorm(100)
 data2 <- rnorm(100, mean = 5, sd = 3)
 qqplot(data1, data2)
+lines(data1, data1, type = 'l')
 ```
 
 According to the graph, same trend is observed comparing to the plot from previous step. The slop can also be concluded as positive. Meanwhile, the slops of two plots are different.In previous plot, an increasing of 1 in x-axis results an increasing of 1 in y-axis.The slop for previous plot is close to 1 and slop for this graph is greater. This can be proved by observation that a increasing of 1 from 0 to 1 in x-axis is resulting a increasing of,approximately, 2. Data2 is directly proportional to data1, but the slope is different this time.
@@ -157,9 +161,11 @@ According to the graph, same trend is observed comparing to the plot from previo
 data1 <- rexp(100)
 data2 <- rexp(100)
 qqplot(data1, data2)
+lines(data1, data1, type = 'l')
 data1 <- rexp(1000)
 data2 <- rexp(1000)
 qqplot(data1, data2)
+lines(data1, data1, type = 'l')
 ```
 
 When n = 100, a line is observed when 0 < x < 1. A small curved-like pattern is observed when 1 < x <2 . For x > 2,the scattering points lose thier consistency. When n = 1000, a straight line is formed. Trend and slop is easier to observe from the plot.Comparing both graph, they have same trend and similar slop, however, with a bigger size, two data sets are more consistent.
@@ -170,9 +176,11 @@ When n = 100, a line is observed when 0 < x < 1. A small curved-like pattern is 
 data1 <- rnorm(100)
 data2 <- rexp(100)
 qqplot(data1, data2)
+lines(data1, data1, type = 'l')
 data1 <- rnorm(500)
 data2 <- rexp(500)
 qqplot(data1, data2)
+lines(data1, data1, type = 'l')
 ```
 
 For n = 100, the scattering points somehow created a twistied curve shape. For n = 500, a relative smooth curve is observed. Both plots, n = 100 and 500, have the same trend, which indicates that the relationship is exponential.
@@ -181,6 +189,7 @@ For n = 100, the scattering points somehow created a twistied curve shape. For n
 
 ```{r S6, dependson='Q1'}
 qqplot(delays, delays2)
+lines(delays, delays, type = 'l')
 ```
 
 Two straight lines are displayed in the plot. The points form lines when delays2 has certain values. Considering the naive embedding scheme from part 1, the points form lines when delays2 has values of 0.25 and 0.75.This plot indicates that the distribution of delays and delays2 are not similar because the points are not lying on line y = x.
@@ -197,8 +206,96 @@ A curve is observed. The beginning of the curve perfectly lies on line y = x. Ho
 ## Step 8
 
 ```{r S8}
+Traffic_data_orig <- read.csv("Traffic_data_orig.csv", header=TRUE)
+message <- "this is a secret message"
+raw <- charToRaw(message)
+time = Traffic_data_orig$Time
+num = as.integer(rawToBits(raw))
+delays = numeric(length(time) - 1)
+for (i in (1:(length(time) - 1))) {
+  delays[i] = time[i+1] - time[i]
+}
+m = median(delays)
+max = max(delays)
+min = min(delays)
 
+index = 1
+bitlen = length(raw)*8
+encrpt <- numeric(length(raw)*8)
+for (i in (0:(length(raw)-1))) {
+  for (j in 1:8) {
+    if (num[i * 8 + j] == 0) {
+      encrpt[index] = sample(delays[which(delays >= min && delays <= m)])[1]
+    }
+    else {
+      encrpt[index] = sample(delays[which(delays >= m && delays <= max)])[1]
+    }
+    index = index + 1
+    j = j - 1
+  }
+}
+
+delays4 = delays
+for (i in (1:bitlen)) {
+  delays4[i] = encrpt[i]
+}
+qqplot(delays, delays4)
+lines(delays, delays, type = 'l')
 ```
 
 The scattering points forms a relatively straight line and most the points lies on line y = x. This plot indicates that the method we developed meets the distributions of delays.
 
+# Implementation
+
+## Implementation 1
+
+```{r I1}
+generateMessage <- function (len) {
+  message <- numeric(len)
+  for (i in (1:len)){
+    message[i] = sample(c(0,1), 1)
+  }
+  return(message)
+}
+
+generateTime <- function(ipd, len) {
+  time <- numeric(len)
+  time[1] = 0
+  for (i in (2:len)){
+    time[i] = time[i-1] + ipd[i-1]
+  }
+  return(time)
+}
+
+#generateProb <- function () {
+  bufferSize = 20
+  ipd <- rexp(50)
+  ipd2 <- rexp(50)
+  ipdTime <- generateTime(ipd, 51)
+  min = min(ipd)
+  max = max(ipd)
+  med = median(ipd)
+  m <- c(16,32)
+  bufferNum <- c(2,6,10,14,18)
+  count = 0
+  underflow = 0
+  overflow = 0
+  for (index in (1:2)) {
+    len = m[index]
+    message <- generateMessage(len) # generate a message
+  
+    for (j in (1:5)) {
+      mi = 1
+      i = bufferNum[j]
+      bufferSize = bufferSize - i
+      tempTime = ipdTime[i] # buffer i packets
+      # modify and send it
+      
+      
+      count = count + 1
+    }
+  }
+  #return(c(underflow/count,overflow/count))
+#}
+#generateProb()
+```
