@@ -17,11 +17,16 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Question 1
 ```{r Q1, cache=TRUE}
-load("Traffic_data_orig.RData")
+Traffic_data_orig <- read.csv("Traffic_data_orig.csv", header=TRUE)
 message <- "this is a secret message"
 raw <- charToRaw(message)
 time = Traffic_data_orig$Time
 num = as.integer(rawToBits(raw))
+
+delays = numeric(length(time) - 1)
+for (i in (1:(length(time) - 1))) {
+  delays[i] = time[i+1] - time[i]
+}
 
 index = 1
 bitlen = length(raw)*8
@@ -39,18 +44,18 @@ for (i in (0:(length(raw)-1))) {
   }
 }
 
-time2 <- Traffic_data_orig$Time
+delays2 = delays
 for (i in (1:bitlen)) {
-  time2[i+1] = time2[i] + encrpt[i]
+  delays2[i] = encrpt[i]
 }
 ```
 
 
 ## Question 2
 ```{r Q2, cache=TRUE, dependson='Q1'}
-hist(time, col='grey', xlab = 'Time', 
+hist(delays, col='grey', xlab = 'Delay Time', 
      main = 'Histogram of Overt Packet Stream')
-hist(time2, col='grey', xlab = 'Time', 
+hist(delays2, col='grey', xlab = 'Delay Time', 
      main = 'Histogram of Convert Packet Stream')
 ```
 Yes, Eve will be suspicious because it is obvious that the distribution changed.
@@ -58,7 +63,7 @@ Yes, Eve will be suspicious because it is obvious that the distribution changed.
 ## Question 3
 
 ```{r Q3, cache=TRUE}
-load("Traffic_data_orig.RData")
+Traffic_data_orig <- read.csv("Traffic_data_orig.csv", header=TRUE)
 message <- "this is a secret message"
 raw <- charToRaw(message)
 time = Traffic_data_orig$Time
@@ -76,39 +81,41 @@ bitlen = length(raw)*8
 encrpt <- numeric(length(raw)*8)
 for (i in (0:(length(raw)-1))) {
   for (j in 1:8) {
-    if (num[i*8+j] == 0) {
+    if (num[i * 8 + j] == 0) {
       encrpt[index] = runif(1, min, m)
     }
     else {
       encrpt[index] = runif(1, m, max)
     }
-    index = index+1
-    j = j-1
+    index = index + 1
+    j = j - 1
   }
 }
 
-time2 <- Traffic_data_orig$Time
+delays2 = delays
 for (i in (1:bitlen)) {
-  time2[i+1] = time2[i] + encrpt[i]
+  delays2[i] = encrpt[i]
 }
 ```
 
 ## Question 4
 ```{r Q4, cache=TRUE, dependson='Q3'}
-hist(time, col='grey', xlab = 'Time', 
+hist(delays, col='grey', xlab = 'Delay Time', 
      main = 'Histogram of Overt Packet Stream')
-hist(time2, col='grey', xlab = 'Time', 
+hist(delays2, col='grey', xlab = 'Delay Time', 
      main = 'Histogram of Convert Packet Stream')
 ```
-I think Eva will be suspicious because it is obvious the distribution changed.
+I think Eva will not be suspicious.
 
 ## Question 5
 
-1. 
+1. Instead of generating random number from m to max, and min to m, we can choose one of the existing one from m to max, and min to m.
 2. 
-3.
+3. 
 
+# Detection
 
+## Steps
 
 
 
