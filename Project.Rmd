@@ -27,8 +27,7 @@ index = 1
 bitlen = length(raw)*8
 encrpt <- numeric(length(raw)*8)
 for (i in (0:(length(raw)-1))) {
-  j = 8
-  while (j > 0) {
+  for (j in 1:8) {
     if (num[i*8+j] == 0) {
       encrpt[index] = 0.25
     }
@@ -76,8 +75,7 @@ index = 1
 bitlen = length(raw)*8
 encrpt <- numeric(length(raw)*8)
 for (i in (0:(length(raw)-1))) {
-  j = 8
-  while (j > 0) {
+  for (j in 1:8) {
     if (num[i*8+j] == 0) {
       encrpt[index] = runif(1, min, m)
     }
@@ -106,7 +104,9 @@ I think Eva will be suspicious because it is obvious the distribution changed.
 
 ## Question 5
 
-
+1. 
+2. 
+3.
 
 
 
