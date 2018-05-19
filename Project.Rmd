@@ -58,7 +58,8 @@ hist(delays, col='grey', xlab = 'Delay Time',
 hist(delays2, col='grey', xlab = 'Delay Time', 
      main = 'Histogram of Convert Packet Stream')
 ```
-Yes, Eve will be suspicious because it is obvious that the distribution changed.
+
+Yes, Eve will be suspicious because it is obvious that the distribution changed.The Frequence of delaytime of 0.25 and 0.75 have increased dramatically compared to the histogram of Overt Packet Stream.
 
 ## Question 3
 
@@ -105,15 +106,17 @@ hist(delays, col='grey', xlab = 'Delay Time',
 hist(delays2, col='grey', xlab = 'Delay Time', 
      main = 'Histogram of Convert Packet Stream')
 ```
-I think Eva will not be suspicious.
+
+I think Eva will not be suspicious because the trend of the Convert Packet Stream is similar to the Overt one.
+
 
 ## Question 5
 
 1. Instead of generating random number from m to max, and min to m, we can choose one of the existing one from m to max, and min to m.
 
-2. 
+2. The packet stream is not predictable because the time that each packet is sent will not be a constant. Hence, this is not realistic for Alice to buffer up the packets.
 
-3. 
+3. We assume that network has no effect so that we can use the given data as a standard to compare the results. Therefore, if the network does alter the inter-packet delays, then the algorithms and graphs we have worked will be slightly inaccurate. We can mitigate the effect of the changes of the interpacket delay by collecting a set of data, and using the average delaytime for each packet as the new standard.
 
 # Detection
 
@@ -136,7 +139,7 @@ data2 <- rnorm(1000)
 qqplot(data1, data2)
 ```
 
-Two plots are directly proportional to each other.
+When size n = 30, the plot has few points. The scattering points seems to be placed in a pattern that the slop is positive, and a trend is observed. When size n = 100, more points are added comparing to n = 30. Points are forming into a line, still has the same trend as size n = 30. When size n = 1000, with 1000 points that connected together, a relatively straight line is observed. The plot clearly shows both trend and slop. Comparing three data plots, it is obvious that the more points one graph has, the more clear how the slop is like. All plots share the same slop and plots are directly proportional to each other.
 
 ## Step 3
 
@@ -146,7 +149,7 @@ data2 <- rnorm(100, mean = 5, sd = 3)
 qqplot(data1, data2)
 ```
 
-data2 is directly proportional to data1, but the slope is different this time.
+According to the graph, same trend is observed comparing to the plot from previous step. The slop can also be concluded as positive. Meanwhile, the slops of two plots are different.In previous plot, an increasing of 1 in x-axis results an increasing of 1 in y-axis.The slop for previous plot is close to 1 and slop for this graph is greater. This can be proved by observation that a increasing of 1 from 0 to 1 in x-axis is resulting a increasing of,approximately, 2. Data2 is directly proportional to data1, but the slope is different this time.
 
 ## Step 4
 
@@ -159,7 +162,7 @@ data2 <- rexp(1000)
 qqplot(data1, data2)
 ```
 
-With a bigger size, two data sets are more consistent.
+When n = 100, a line is observed when 0 < x < 1. A small curved-like pattern is observed when 1 < x <2 . For x > 2,the scattering points lose thier consistency. When n = 1000, a straight line is formed. Trend and slop is easier to observe from the plot.Comparing both graph, they have same trend and similar slop, however, with a bigger size, two data sets are more consistent.
 
 ## Step 5
 
@@ -172,7 +175,7 @@ data2 <- rexp(500)
 qqplot(data1, data2)
 ```
 
-Their relation is exponential.
+For n = 100, the scattering points somehow created a twistied curve shape. For n = 500, a relative smooth curve is observed. Both plots, n = 100 and 500, have the same trend, which indicates that the relationship is exponential.
 
 ## Step 6
 
@@ -180,11 +183,16 @@ Their relation is exponential.
 qqplot(delays, delays2)
 ```
 
+Two straight lines are displayed in the plot. The points form lines when delays2 has certain values. Considering the naive embedding scheme from part 1, the points form lines when delays2 has values of 0.25 and 0.75.This plot indicates that the distribution of delays and delays2 are not similar because the points are not lying on line y = x.
+
 ## Step 7
 
 ```{r S7, dependson='Q3'}
 qqplot(delays, delays3)
+lines(delays, delays, type = "l")
 ```
+
+A curve is observed. The beginning of the curve perfectly lies on line y = x. However, the curves begins to be off more and more from the line starting from the value of delays greater than 0.1.
 
 ## Step 8
 
@@ -192,4 +200,5 @@ qqplot(delays, delays3)
 
 ```
 
+The scattering points forms a relatively straight line and most the points lies on line y = x. This plot indicates that the method we developed meets the distributions of delays.
 
