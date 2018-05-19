@@ -189,7 +189,40 @@ qqplot(delays, delays3)
 ## Step 8
 
 ```{r S8}
+Traffic_data_orig <- read.csv("Traffic_data_orig.csv", header=TRUE)
+message <- "this is a secret message"
+raw <- charToRaw(message)
+time = Traffic_data_orig$Time
+num = as.integer(rawToBits(raw))
+delays = numeric(length(time) - 1)
+for (i in (1:(length(time) - 1))) {
+  delays[i] = time[i+1] - time[i]
+}
+m = median(delays)
+max = max(delays)
+min = min(delays)
 
+index = 1
+bitlen = length(raw)*8
+encrpt <- numeric(length(raw)*8)
+for (i in (0:(length(raw)-1))) {
+  for (j in 1:8) {
+    if (num[i * 8 + j] == 0) {
+      encrpt[index] = sample(delays[which(delays >= min && delays <= m)])[1]
+    }
+    else {
+      encrpt[index] = sample(delays[which(delays >= m && delays <= max)])[1]
+    }
+    index = index + 1
+    j = j - 1
+  }
+}
+
+delays4 = delays
+for (i in (1:bitlen)) {
+  delays4[i] = encrpt[i]
+}
+qqplot(delays, delays4)
 ```
 
 
