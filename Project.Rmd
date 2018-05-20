@@ -262,17 +262,16 @@ generateProb <- function (mlen, bufferNum) {
   bufferSize = 20
   currbuffer = bufferNum
   message <- generateMessage(mlen) # Generate the random bit pattern
-  ipdSource <- rexp(100)
-  ipdSend <- rexp(100)
+  ipdSource <- rexp(50)
+  ipdSend <- rexp(50)
   ipdEncrypt <- ipdSend
-  ipdTime <- generateTime(ipdSource, 101)
+  ipdTime <- generateTime(ipdSource, 51)
   currTime = ipdTime[bufferNum]
   min = min(ipdSend)
   max = max(ipdSend)
   med = median(ipdSend)
   underflow = 0
   overflow = 0
-  currbuffer = 2
 
   index = bufferNum + 1
  
@@ -328,22 +327,38 @@ c(mean(probsU), mean(probsO))
 
 ## Implementation 2
 
-```{r I2, dependson='I1'}
+```{r I2}
+generateMessage <- function (len) {
+  message <- numeric(len)
+  for (i in (1:len)){
+    message[i] = sample(c(0,1), 1)
+  }
+  return(message)
+}
+
+generateTime <- function(ipd, len) {
+  time <- numeric(len)
+  time[1] = 0
+  for (i in (2:len)){
+    time[i] = time[i-1] + ipd[i-1]
+  }
+  return(time)
+}
+
 generateProb <- function (mlen, bufferNum) {
   bufferSize = 20
   currbuffer = bufferNum
   message <- generateMessage(mlen) # Generate the random bit pattern
-  ipdSource <- runif(100,0,1)
-  ipdSend <- runif(100,0,1)
+  ipdSource <- runif(50, min = 0, max = 1)
+  ipdSend <- runif(50, min = 0, max = 1)
   ipdEncrypt <- ipdSend
-  ipdTime <- generateTime(ipdSource, 101)
+  ipdTime <- generateTime(ipdSource, 51)
   currTime = ipdTime[bufferNum]
   min = min(ipdSend)
   max = max(ipdSend)
   med = median(ipdSend)
   underflow = 0
   overflow = 0
-  currbuffer = 2
 
   index = bufferNum + 1
  
@@ -394,5 +409,29 @@ for (t in (1:1000)) {
   probsU[t] = underflow/count
   probsO[t] = overflow/count
 }
+
 c(mean(probsU), mean(probsO))
 ```
+
+## Implementation 3
+
+```{r I3}
+nums <- c(2,6,10,14,18)
+p = pexp(1, rate = 1)
+q = 1 - p
+P1 <- numeric(5)
+for (k in (1:5)) {
+  i = nums[k]
+  P1[k] = (1 - (q/p)^i) / (1 - (q/p)^20)
+}
+
+P2 <- numeric(5)
+for (k in (1:5)) {
+  i = nums[k]
+  P2[k] = i / 20
+}
+
+c(1-mean(P1), mean(P1), 1-mean(P2), mean(P2))
+```
+
+
