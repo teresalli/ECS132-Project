@@ -303,26 +303,33 @@ generateProb <- function (mlen, bufferNum) {
     }
   return(c(underflow,overflow))
 }
-probsU <- numeric(1000)
-probsO <- numeric(1000)
-for (t in (1:1000)) {
-  m <- c(16,32)
-  bufferNum <- c(2,6,10,14,18)
-  underflow = 0
-  overflow = 0
-  count = 0
-  for (i in (1:2)) {
-      for (j in (1:5)) {
-        output <- generateProb(m[i], bufferNum[j])
-        underflow = underflow + output[1]
-        overflow = overflow + output[2]
-        count = count + 1
-      }
+
+simulate <- function (m, i) {
+  for (t in (1:1000)) {
+    underflow = 0
+    overflow = 0
+    count = 0
+    output <- generateProb(m, i)
+    underflow = underflow + output[1]
+    overflow = overflow + output[2]
+    count = count + 1
+    probsU[t] = underflow/count
+    probsO[t] = overflow/count
   }
-  probsU[t] = underflow/count
-  probsO[t] = overflow/count
+  return(c(mean(probsU), mean(probsO)))
 }
-c(mean(probsU), mean(probsO))
+
+simulate(16,2)
+simulate(16,6)
+simulate(16,10)
+simulate(16,14)
+simulate(16,18)
+simulate(32,2)
+simulate(32,6)
+simulate(32,10)
+simulate(32,14)
+simulate(32,18)
+
 ```
 
 ## Implementation 2
@@ -349,8 +356,8 @@ generateProb <- function (mlen, bufferNum) {
   bufferSize = 20
   currbuffer = bufferNum
   message <- generateMessage(mlen) # Generate the random bit pattern
-  ipdSource <- runif(50, min = 0, max = 1)
-  ipdSend <- runif(50, min = 0, max = 1)
+  ipdSource <- runif(50, 0, 1)
+  ipdSend <- runif(50, 0, 1)
   ipdEncrypt <- ipdSend
   ipdTime <- generateTime(ipdSource, 51)
   currTime = ipdTime[bufferNum]
@@ -376,9 +383,9 @@ generateProb <- function (mlen, bufferNum) {
       if (currTime <= ipdTime[index]) {
         currbuffer = currbuffer - 1
         if (currbuffer < 1){
-        underflow = 1
-        break
-      }
+          underflow = 1
+          break
+        }
       } else {
         currbuffer = currbuffer + 1
         if (currbuffer > bufferSize){
@@ -390,40 +397,51 @@ generateProb <- function (mlen, bufferNum) {
     }
   return(c(underflow,overflow))
 }
-probsU <- numeric(1000)
-probsO <- numeric(1000)
-for (t in (1:1000)) {
-  m <- c(16,32)
-  bufferNum <- c(2,6,10,14,18)
-  underflow = 0
-  overflow = 0
-  count = 0
-  for (i in (1:2)) {
-      for (j in (1:5)) {
-        output <- generateProb(m[i], bufferNum[j])
-        underflow = underflow + output[1]
-        overflow = overflow + output[2]
-        count = count + 1
-      }
+
+simulate <- function (m, i) {
+  for (t in (1:1000)) {
+    underflow = 0
+    overflow = 0
+    count = 0
+    output <- generateProb(m, i)
+    underflow = underflow + output[1]
+    overflow = overflow + output[2]
+    count = count + 1
+    probsU[t] = underflow/count
+    probsO[t] = overflow/count
   }
-  probsU[t] = underflow/count
-  probsO[t] = overflow/count
+  return(c(mean(probsU), mean(probsO)))
 }
 
-c(mean(probsU), mean(probsO))
+simulate(16,2)
+simulate(16,6)
+simulate(16,10)
+simulate(16,14)
+simulate(16,18)
+simulate(32,2)
+simulate(32,6)
+simulate(32,10)
+simulate(32,14)
+simulate(32,18)
 ```
 
 ## Implementation 3
 
 ```{r I3}
 nums <- c(2,6,10,14,18)
-p = pexp(1, rate = 1)
+p = pexp(1)
 q = 1 - p
 P1 <- numeric(5)
 for (k in (1:5)) {
   i = nums[k]
-  P1[k] = (1 - (q/p)^i) / (1 - (q/p)^20)
+  P1[k] = (1 - (q/p)^i) / (1 - (q/p)^16)
 }
+Q1 <- numeric(5)
+for (k in (1:5)) {
+  i = nums[k]
+  Q1[k] = (1 - (p/q)^(16-i)) / (1 - (p/q)^16)
+}
+
 
 P2 <- numeric(5)
 for (k in (1:5)) {
@@ -431,7 +449,7 @@ for (k in (1:5)) {
   P2[k] = i / 20
 }
 
-c(1-mean(P1), mean(P1), 1-mean(P2), mean(P2))
+c(mean(Q1), mean(P1), 1-mean(P2), mean(P2))
 ```
 
 
