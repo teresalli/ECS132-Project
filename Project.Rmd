@@ -53,9 +53,9 @@ for (i in (1:bitlen)) {
 
 ## Question 2
 ```{r Q2, dependson='Q1'}
-hist(delays, col='grey', xlab = 'Delay Time', 
+hist(delays, col='grey', xlab = 'Delay Time',
      main = 'Histogram of Overt Packet Stream')
-hist(delays2, col='grey', xlab = 'Delay Time', 
+hist(delays2, col='grey', xlab = 'Delay Time',
      main = 'Histogram of Convert Packet Stream')
 ```
 
@@ -101,9 +101,9 @@ for (i in (1:bitlen)) {
 
 ## Question 4
 ```{r Q4, dependson='Q3'}
-hist(delays, col='grey', xlab = 'Delay Time', 
+hist(delays, col='grey', xlab = 'Delay Time',
      main = 'Histogram of Overt Packet Stream')
-hist(delays2, col='grey', xlab = 'Delay Time', 
+hist(delays2, col='grey', xlab = 'Delay Time',
      main = 'Histogram of Convert Packet Stream')
 ```
 
@@ -267,35 +267,198 @@ generateTime <- function(ipd, len) {
   return(time)
 }
 
-#generateProb <- function () {
+generateProb <- function (mlen, bufferNum) {
   bufferSize = 20
-  ipd <- rexp(50)
-  ipd2 <- rexp(50)
-  ipdTime <- generateTime(ipd, 51)
-  min = min(ipd)
-  max = max(ipd)
-  med = median(ipd)
-  m <- c(16,32)
-  bufferNum <- c(2,6,10,14,18)
-  count = 0
+  currbuffer = bufferNum
+  message <- generateMessage(mlen) # Generate the random bit pattern
+  ipdSource <- rexp(50)
+  ipdSend <- rexp(50)
+  ipdEncrypt <- ipdSend
+  ipdTime <- generateTime(ipdSource, 51)
+  currTime = ipdTime[bufferNum]
+  min = min(ipdSend)
+  max = max(ipdSend)
+  med = median(ipdSend)
   underflow = 0
   overflow = 0
-  for (index in (1:2)) {
-    len = m[index]
-    message <- generateMessage(len) # generate a message
-  
-    for (j in (1:5)) {
-      mi = 1
-      i = bufferNum[j]
-      bufferSize = bufferSize - i
-      tempTime = ipdTime[i] # buffer i packets
-      # modify and send it
-      
-      
-      count = count + 1
+
+  index = bufferNum + 1
+ 
+    for (i in (1:mlen)) {
+      # Generate a delay
+      if (message[i] == 0) {
+        delay = runif(1, min, med)
+        ipdEncrypt[i] = delay
+      } else {
+        delay = runif(1, med, max)
+        ipdEncrypt[i] = delay
+      }
+      currTime = currTime + delay # update time
+      # Update the state of the buffer depending on the number of arrivals during that time.
+      if (currTime <= ipdTime[index]) {
+        currbuffer = currbuffer - 1
+        if (currbuffer < 1){
+          underflow = 1
+          break
+        }
+      } else {
+        currbuffer = currbuffer + 1
+        if (currbuffer > bufferSize){
+          overflow = 1
+          break
+        }
+      }
+      index = index + 1
     }
+  return(c(underflow,overflow))
+}
+
+simulate <- function (m, i) {
+  for (t in (1:1000)) {
+    underflow = 0
+    overflow = 0
+    count = 0
+    output <- generateProb(m, i)
+    underflow = underflow + output[1]
+    overflow = overflow + output[2]
+    count = count + 1
+    probsU[t] = underflow/count
+    probsO[t] = overflow/count
   }
-  #return(c(underflow/count,overflow/count))
-#}
-#generateProb()
+  return(c(mean(probsU), mean(probsO)))
+}
+
+simulate(16,2)
+simulate(16,6)
+simulate(16,10)
+simulate(16,14)
+simulate(16,18)
+simulate(32,2)
+simulate(32,6)
+simulate(32,10)
+simulate(32,14)
+simulate(32,18)
+
 ```
+
+## Implementation 2
+
+```{r I2}
+generateMessage <- function (len) {
+  message <- numeric(len)
+  for (i in (1:len)){
+    message[i] = sample(c(0,1), 1)
+  }
+  return(message)
+}
+
+generateTime <- function(ipd, len) {
+  time <- numeric(len)
+  time[1] = 0
+  for (i in (2:len)){
+    time[i] = time[i-1] + ipd[i-1]
+  }
+  return(time)
+}
+
+generateProb <- function (mlen, bufferNum) {
+  bufferSize = 20
+  currbuffer = bufferNum
+  message <- generateMessage(mlen) # Generate the random bit pattern
+  ipdSource <- runif(50, 0, 1)
+  ipdSend <- runif(50, 0, 1)
+  ipdEncrypt <- ipdSend
+  ipdTime <- generateTime(ipdSource, 51)
+  currTime = ipdTime[bufferNum]
+  min = min(ipdSend)
+  max = max(ipdSend)
+  med = median(ipdSend)
+  underflow = 0
+  overflow = 0
+
+  index = bufferNum + 1
+ 
+    for (i in (1:mlen)) {
+      # Generate a delay
+      if (message[i] == 0) {
+        delay = runif(1, min, med)
+        ipdEncrypt[i] = delay
+      } else {
+        delay = runif(1, med, max)
+        ipdEncrypt[i] = delay
+      }
+      currTime = currTime + delay # update time
+      # Update the state of the buffer depending on the number of arrivals during that time.
+      if (currTime <= ipdTime[index]) {
+        currbuffer = currbuffer - 1
+        if (currbuffer < 1){
+          underflow = 1
+          break
+        }
+      } else {
+        currbuffer = currbuffer + 1
+        if (currbuffer > bufferSize){
+          overflow = 1
+          break
+        }
+      }
+      index = index + 1
+    }
+  return(c(underflow,overflow))
+}
+
+simulate <- function (m, i) {
+  for (t in (1:1000)) {
+    underflow = 0
+    overflow = 0
+    count = 0
+    output <- generateProb(m, i)
+    underflow = underflow + output[1]
+    overflow = overflow + output[2]
+    count = count + 1
+    probsU[t] = underflow/count
+    probsO[t] = overflow/count
+  }
+  return(c(mean(probsU), mean(probsO)))
+}
+
+simulate(16,2)
+simulate(16,6)
+simulate(16,10)
+simulate(16,14)
+simulate(16,18)
+simulate(32,2)
+simulate(32,6)
+simulate(32,10)
+simulate(32,14)
+simulate(32,18)
+```
+
+## Implementation 3
+
+```{r I3}
+nums <- c(2,6,10,14,18)
+p = pexp(1)
+q = 1 - p
+P1 <- numeric(5)
+for (k in (1:5)) {
+  i = nums[k]
+  P1[k] = (1 - (q/p)^i) / (1 - (q/p)^16)
+}
+Q1 <- numeric(5)
+for (k in (1:5)) {
+  i = nums[k]
+  Q1[k] = (1 - (p/q)^(16-i)) / (1 - (p/q)^16)
+}
+
+
+P2 <- numeric(5)
+for (k in (1:5)) {
+  i = nums[k]
+  P2[k] = i / 20
+}
+
+c(mean(Q1), mean(P1), 1-mean(P2), mean(P2))
+```
+
+
